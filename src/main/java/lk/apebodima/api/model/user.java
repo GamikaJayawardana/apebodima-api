@@ -14,32 +14,37 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-@Data
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
-@Entity
-@Table(name = "app_users")  
+@Data // Lombok annotation to generate getters, setters, and other utility methods
+@Builder // Lombok annotation to implement the builder pattern
+@NoArgsConstructor // Lombok annotation to generate a no-argument constructor
+@AllArgsConstructor // Lombok annotation to generate an all-arguments constructor
+@Entity // JPA annotation to mark this class as a database entity
+@Table(name = "app_users")  // Specify the table name in the database
 public class User implements UserDetails {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Id // JPA annotation to mark the primary key
+    @GeneratedValue(strategy = GenerationType.IDENTITY) 
+    // JPA annotation to specify the primary key generation strategy
     private Long id;
 
     private String firstName;
     private String lastName;
 
     @Column(unique = true, nullable = false)
+    // JPA annotation to specify column constraints
     private String email;
 
     private String password;
 
     @Enumerated(EnumType.STRING)
     private Role role;
+    // User role (e.g., TENANT, LANDLORD, ADMIN)
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
+        // Return the user's authorities based on their role
         return List.of(new SimpleGrantedAuthority(role.name()));
     }
+    
 
     @Override
     public String getUsername() {
