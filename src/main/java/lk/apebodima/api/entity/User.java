@@ -1,4 +1,4 @@
-package lk.apebodima.api.model;
+package lk.apebodima.api.entity;
 
 import java.util.Collection;
 import java.util.List;
@@ -8,7 +8,6 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import jakarta.persistence.*;
-import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -34,6 +33,9 @@ public class User implements UserDetails {
     private String email;
 
     private String password;
+
+    private String contactNo;
+    private String address;
 
     @Enumerated(EnumType.STRING)
     private Role role;

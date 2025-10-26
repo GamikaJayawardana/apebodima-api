@@ -1,7 +1,7 @@
+// In: src/main/java/lk/apebodima/api/dto/UserDto.java
 package lk.apebodima.api.dto;
 
-import javax.management.relation.Role;
-
+import lk.apebodima.api.entity.Role;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -11,12 +11,12 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class RegisterRequest {
+public class UserDto {
+    private Long id;
     private String firstName;
     private String lastName;
     private String email;
-    private String password;
-    private Role role;
     private String contactNo;
     private String address;
+    private Role role;
 }

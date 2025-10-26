@@ -2,11 +2,13 @@ package lk.apebodima.api.repository;
 
 import java.util.Optional;
 
-import lk.apebodima.api.model.User;
+import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import lk.apebodima.api.entity.User;
+
 @Repository
-public interface UserRepository {
+public interface UserRepository extends JpaRepository<User, Long> {
     Optional<User> findByEmail(String email);
     
 }
