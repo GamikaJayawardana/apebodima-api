@@ -1,4 +1,3 @@
-// In: src/main/java/lk/apebodima/api/dto/UserDto.java
 package lk.apebodima.api.dto;
 
 import lk.apebodima.api.entity.Role;

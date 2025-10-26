@@ -1,4 +1,3 @@
-// In: src/main/java/lk/apebodima/api/controller/AuthController.java
 package lk.apebodima.api.controller;
 
 import lk.apebodima.api.dto.AuthResponse;

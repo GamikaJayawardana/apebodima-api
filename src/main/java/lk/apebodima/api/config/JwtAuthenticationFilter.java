@@ -1,4 +1,3 @@
-// In: src/main/java/lk/apebodima/api/config/JwtAuthenticationFilter.java
 package lk.apebodima.api.config;
 
 import java.io.IOException;

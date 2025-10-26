@@ -1,4 +1,3 @@
-// In: src/main/java/lk/apebodima/api/config/SecurityConfig.java
 package lk.apebodima.api.config;
 
 import org.springframework.context.annotation.Bean;

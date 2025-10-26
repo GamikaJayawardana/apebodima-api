@@ -1,4 +1,3 @@
-// In: src/main/java/lk/apebodima/api/config/ApplicationConfig.java
 package lk.apebodima.api.config;
 
 import lk.apebodima.api.repository.UserRepository;
