@@ -1,6 +1,5 @@
 package lk.apebodima.api.dto;
-
-import javax.management.relation.Role;
+import lk.apebodima.api.entity.Role;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
