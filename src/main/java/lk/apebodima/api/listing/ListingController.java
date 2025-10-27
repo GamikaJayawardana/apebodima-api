@@ -22,27 +22,13 @@ public class ListingController {
 
     private final ListingService listingService;
 
-    @PostMapping
-    @PreAuthorize("hasAuthority('LANDLORD')") // Secure this endpoint
-    public ResponseEntity<ListingDto> createListing(@RequestBody CreateListingRequest request) {
-        ListingDto createdListing = listingService.createListing(request);
-        return new ResponseEntity<>(createdListing, HttpStatus.CREATED);
-    }
-
-    @GetMapping
-    public ResponseEntity<List<ListingDto>> getAllListings() {
-        return ResponseEntity.ok(listingService.getAllListings());
-    }
-
-    @GetMapping("/{id}")
-    public ResponseEntity<ListingDto> getListingById(@PathVariable String id) {
-        return ResponseEntity.ok(listingService.getListingById(id));
-    }
-
-    @GetMapping("/my-listings")
+    @PostMapping(consumes = { MediaType.MULTIPART_FORM_DATA_VALUE })
     @PreAuthorize("hasAuthority('LANDLORD')")
-    public ResponseEntity<List<ListingDto>> getMyListings() {
-        return ResponseEntity.ok(listingService.getMyListings());
+    public ResponseEntity<ListingDto> createListing(
+            @RequestPart("listing") CreateListingRequest request,
+            @RequestPart("images") List<MultipartFile> images) {
+        ListingDto createdListing = listingService.createListing(request, images);
+        return new ResponseEntity<>(createdListing, HttpStatus.CREATED);
     }
 
     @GetMapping
@@ -56,34 +42,20 @@ public class ListingController {
             @RequestParam(defaultValue = "10") int size,
             @RequestParam(defaultValue = "createdAt,desc") String[] sort) {
 
-        // Handle sorting
         String sortField = sort[0];
         String sortDirection = sort[1];
         Sort.Direction direction = sortDirection.equalsIgnoreCase("desc") ? Sort.Direction.DESC : Sort.Direction.ASC;
-
         Pageable pageable = PageRequest.of(page, size, Sort.by(direction, sortField));
 
         Page<ListingDto> listingPage = listingService.searchListings(
-                city, propertyType, minRent, maxRent, minBedrooms, pageable
-        );
+                city, propertyType, minRent, maxRent, minBedrooms, pageable);
         return ResponseEntity.ok(listingPage);
     }
 
-    @PostMapping("/{id}/boost")
-    @PreAuthorize("hasAuthority('LANDLORD')")
-    public ResponseEntity<ListingDto> boostListing(@PathVariable String id) {
-        return ResponseEntity.ok(listingService.boostListing(id));
+    @GetMapping("/{id}")
+    public ResponseEntity<ListingDto> getListingById(@PathVariable String id) {
+        return ResponseEntity.ok(listingService.getListingById(id));
     }
-
-    @PostMapping(consumes = { MediaType.MULTIPART_FORM_DATA_VALUE })
-    @PreAuthorize("hasAuthority('LANDLORD')")
-    public ResponseEntity<ListingDto> createListing(
-            @RequestPart("listing") CreateListingRequest request,
-            @RequestPart("images") List<MultipartFile> images) {
-        ListingDto createdListing = listingService.createListing(request, images);
-        return new ResponseEntity<>(createdListing, HttpStatus.CREATED);
-    }
-
 
     @PutMapping("/{id}")
     @PreAuthorize("hasAuthority('LANDLORD')")
@@ -95,6 +67,18 @@ public class ListingController {
     @PreAuthorize("hasAuthority('LANDLORD')")
     public ResponseEntity<Void> deleteListing(@PathVariable String id) {
         listingService.deleteListing(id);
-        return ResponseEntity.noContent().build(); // Return 204 No Content on successful deletion
+        return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/my-listings")
+    @PreAuthorize("hasAuthority('LANDLORD')")
+    public ResponseEntity<List<ListingDto>> getMyListings() {
+        return ResponseEntity.ok(listingService.getMyListings());
+    }
+
+    @PostMapping("/{id}/boost")
+    @PreAuthorize("hasAuthority('LANDLORD')")
+    public ResponseEntity<ListingDto> boostListing(@PathVariable String id) {
+        return ResponseEntity.ok(listingService.boostListing(id));
     }
 }
