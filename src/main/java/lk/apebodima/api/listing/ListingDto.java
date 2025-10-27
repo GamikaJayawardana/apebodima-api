@@ -1,5 +1,7 @@
 package lk.apebodima.api.listing;
 
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -16,6 +18,9 @@ import java.util.List;
 @NoArgsConstructor
 public class ListingDto {
     private String id;
+
+    @NotBlank(message = "Title cannot be empty")
+    @Size(min = 5, max = 100, message = "Title must be between 5 and 100 characters")
     private String title;
     private String description;
     private BigDecimal rentAmount;

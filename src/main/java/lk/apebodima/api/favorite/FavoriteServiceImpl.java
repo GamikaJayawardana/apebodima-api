@@ -3,6 +3,7 @@ package lk.apebodima.api.favorite;
 
 import lk.apebodima.api.listing.Listing;
 import lk.apebodima.api.listing.ListingDto;
+import lk.apebodima.api.listing.ListingMapper;
 import lk.apebodima.api.listing.ListingRepository;
 import lk.apebodima.api.user.User;
 import lk.apebodima.api.user.UserRepository;
@@ -19,6 +20,7 @@ public class FavoriteServiceImpl implements FavoriteService {
 
     private final UserRepository userRepository;
     private final ListingRepository listingRepository;
+    private final ListingMapper listingMapper;
 
     @Override
     public void addFavorite(String listingId) {
@@ -41,7 +43,9 @@ public class FavoriteServiceImpl implements FavoriteService {
     public List<ListingDto> getMyFavorites() {
         User currentUser = getCurrentUser();
         List<Listing> favoriteListings = listingRepository.findAllById(currentUser.getFavoriteListingIds());
-        return favoriteListings.stream().map(this::mapToListingDto).collect(Collectors.toList());
+        return favoriteListings.stream()
+                .map(listingMapper::toDto) // Use the central mapper
+                .collect(Collectors.toList());
     }
 
     private User getCurrentUser() {

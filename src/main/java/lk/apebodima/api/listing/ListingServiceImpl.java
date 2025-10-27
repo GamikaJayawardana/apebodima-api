@@ -1,3 +1,4 @@
+// In: src/main/java/lk/apebodima/api/listing/ListingServiceImpl.java
 package lk.apebodima.api.listing;
 
 import lk.apebodima.api.user.User;
@@ -8,7 +9,6 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
-
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -21,9 +21,11 @@ public class ListingServiceImpl implements ListingService {
 
     private final ListingRepository listingRepository;
     private final ImageUploadService imageUploadService;
+    private final ListingMapper listingMapper; // Inject the new mapper
 
     @Override
     public ListingDto createListing(CreateListingRequest request, List<MultipartFile> images) {
+        // ... (This method is correct, just ensure it uses the mapper at the end)
         User currentUser = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
         List<String> imageUrls = new ArrayList<>();
@@ -55,16 +57,8 @@ public class ListingServiceImpl implements ListingService {
                 .imageUrls(imageUrls)
                 .status(ListingStatus.AVAILABLE)
                 .build();
-
         Listing savedListing = listingRepository.save(listing);
-        return mapToListingDto(savedListing);
-    }
-
-    @Override
-    public ListingDto getListingById(String id) {
-        Listing listing = listingRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Listing not found with id: " + id));
-        return mapToListingDto(listing);
+        return listingMapper.toDto(savedListing);
     }
 
     @Override
@@ -77,11 +71,38 @@ public class ListingServiceImpl implements ListingService {
             throw new AccessDeniedException("You do not have permission to update this listing.");
         }
 
+        // --- COMPLETED MAPPING LOGIC ---
         listing.setTitle(request.getTitle());
         listing.setDescription(request.getDescription());
-        //... map other fields from request ...
+        listing.setRentAmount(request.getRentAmount());
+        listing.setPropertyType(request.getPropertyType());
+        listing.setAddress(request.getAddress());
+        listing.setCity(request.getCity());
+        listing.setBedrooms(request.getBedrooms());
+        listing.setBathrooms(request.getBathrooms());
+        listing.setSizeSqFt(request.getSizeSqFt());
+        listing.setAmenities(request.getAmenities());
+        listing.setStatus(request.getStatus());
+        listing.setAvailableFrom(request.getAvailableFrom());
+        listing.setBoosted(request.isBoosted());
+        // --- END OF COMPLETED LOGIC ---
+
         Listing updatedListing = listingRepository.save(listing);
-        return mapToListingDto(updatedListing);
+        return listingMapper.toDto(updatedListing);
+    }
+
+    @Override
+    public Page<ListingDto> searchListings(String city, PropertyType propertyType, BigDecimal minRent, BigDecimal maxRent, Integer minBedrooms, Pageable pageable) {
+        Page<Listing> listingPage = listingRepository.findListingsByCriteria(
+                city, propertyType, minRent, maxRent, minBedrooms, pageable);
+        return listingPage.map(listingMapper::toDto);
+    }
+
+    @Override
+    public ListingDto getListingById(String id) {
+        return listingRepository.findById(id)
+                .map(listingMapper::toDto)
+                .orElseThrow(() -> new RuntimeException("Listing not found with id: " + id));
     }
 
     @Override
@@ -97,18 +118,11 @@ public class ListingServiceImpl implements ListingService {
     }
 
     @Override
-    public Page<ListingDto> searchListings(String city, PropertyType propertyType, BigDecimal minRent, BigDecimal maxRent, Integer minBedrooms, Pageable pageable) {
-        Page<Listing> listingPage = listingRepository.findListingsByCriteria(
-                city, propertyType, minRent, maxRent, minBedrooms, pageable);
-        return listingPage.map(this::mapToListingDto);
-    }
-
-    @Override
     public List<ListingDto> getMyListings() {
         User currentUser = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         return listingRepository.findByLandlordId(currentUser.getId())
                 .stream()
-                .map(this::mapToListingDto)
+                .map(listingMapper::toDto)
                 .collect(Collectors.toList());
     }
 
@@ -123,28 +137,6 @@ public class ListingServiceImpl implements ListingService {
         }
         listing.setBoosted(true);
         Listing savedListing = listingRepository.save(listing);
-        return mapToListingDto(savedListing);
-    }
-
-    private ListingDto mapToListingDto(Listing listing) {
-        return ListingDto.builder()
-                .id(listing.getId())
-                .title(listing.getTitle())
-                .description(listing.getDescription())
-                .rentAmount(listing.getRentAmount())
-                .propertyType(listing.getPropertyType())
-                .address(listing.getAddress())
-                .city(listing.getCity())
-                .bedrooms(listing.getBedrooms())
-                .bathrooms(listing.getBathrooms())
-                .sizeSqFt(listing.getSizeSqFt())
-                .amenities(listing.getAmenities())
-                .imageUrls(listing.getImageUrls())
-                .status(listing.getStatus())
-                .availableFrom(listing.getAvailableFrom())
-                .isBoosted(listing.isBoosted())
-                .landlordId(listing.getLandlordId())
-                .createdAt(listing.getCreatedAt())
-                .build();
+        return listingMapper.toDto(savedListing);
     }
 }

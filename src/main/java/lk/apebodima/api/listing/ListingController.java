@@ -1,5 +1,6 @@
 package lk.apebodima.api.listing;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -25,7 +26,7 @@ public class ListingController {
     @PostMapping(consumes = { MediaType.MULTIPART_FORM_DATA_VALUE })
     @PreAuthorize("hasAuthority('LANDLORD')")
     public ResponseEntity<ListingDto> createListing(
-            @RequestPart("listing") CreateListingRequest request,
+            @RequestPart("listing") @Valid CreateListingRequest request,
             @RequestPart("images") List<MultipartFile> images) {
         ListingDto createdListing = listingService.createListing(request, images);
         return new ResponseEntity<>(createdListing, HttpStatus.CREATED);
