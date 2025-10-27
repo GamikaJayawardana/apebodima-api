@@ -20,6 +20,7 @@ public class ListingDto {
     private String description;
     private BigDecimal rentAmount;
     private PropertyType propertyType;
+    private List<String> imageUrls;
     private String address;
     private String city;
     private Integer bedrooms;

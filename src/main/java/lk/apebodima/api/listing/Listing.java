@@ -31,6 +31,8 @@ public class Listing {
     private BigDecimal rentAmount;
     private PropertyType propertyType;
 
+    private List<String> imageUrls;
+
     // --- Location ---
     private String address;
     private String city;
