@@ -1,13 +1,14 @@
+// In: src/main/java/lk/apebodima/api/listing/Listing.java
 package lk.apebodima.api.listing;
 
-import jakarta.persistence.*;
-import lk.apebodima.api.user.User;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.UpdateTimestamp;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -18,69 +19,41 @@ import java.util.List;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Entity
-@Table(name = "listings")
+@Document(collection = "listings")
 public class Listing {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private String id;
 
     // --- Core Details ---
-    @Column(nullable = false)
     private String title;
-
-    @Column(length = 2000)
     private String description;
-
-    @Column(nullable = false)
-    private BigDecimal rentAmount; // Monthly rent
-
-    @Column(nullable = false)
-    @Enumerated(EnumType.STRING)
-    private PropertyType propertyType; // e.g., HOUSE, APARTMENT, ROOM
+    private BigDecimal rentAmount;
+    private PropertyType propertyType;
 
     // --- Location ---
-    @Column(nullable = false)
     private String address;
-
-    @Column(nullable = false)
     private String city;
 
     // --- Property Specifications ---
     private Integer bedrooms;
     private Integer bathrooms;
-    private Double sizeSqFt; // Size in square feet
-
-    // --- Amenities (Using a simple list for now) ---
-    @ElementCollection
-    @CollectionTable(name = "listing_amenities", joinColumns = @JoinColumn(name = "listing_id"))
-    @Column(name = "amenity")
-    private List<String> amenities; // e.g., ["A/C", "Hot Water", "Parking"]
+    private Double sizeSqFt;
+    private List<String> amenities;
 
     // --- Listing Management ---
     @Builder.Default
-    @Column(nullable = false)
-    @Enumerated(EnumType.STRING)
-    private ListingStatus status = ListingStatus.AVAILABLE; // e.g., AVAILABLE, RENTED
-
-    private LocalDate availableFrom; // Date the property is available
-
+    private ListingStatus status = ListingStatus.AVAILABLE;
+    private LocalDate availableFrom;
     @Builder.Default
     private boolean isBoosted = false;
 
-    // --- Timestamps for tracking ---
-    @CreationTimestamp
-    private Instant createdAt;
-
-    @UpdateTimestamp
-    private Instant updatedAt;
-
     // --- Relationships ---
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "landlord_id", nullable = false)
-    private User landlord;
+    private String landlordId; // Store the ID of the landlord user
+
+    // --- Timestamps ---
+    @CreatedDate
+    private Instant createdAt;
+    @LastModifiedDate
+    private Instant updatedAt;
 }
-
-
-

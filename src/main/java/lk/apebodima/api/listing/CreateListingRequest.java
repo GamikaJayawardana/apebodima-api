@@ -6,7 +6,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
-import java.time.Instant;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -14,8 +13,7 @@ import java.util.List;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class ListingDto {
-    private String id;
+public class CreateListingRequest {
     private String title;
     private String description;
     private BigDecimal rentAmount;
@@ -26,9 +24,6 @@ public class ListingDto {
     private Integer bathrooms;
     private Double sizeSqFt;
     private List<String> amenities;
-    private ListingStatus status;
     private LocalDate availableFrom;
     private boolean isBoosted;
-    private String landlordId;
-    private Instant createdAt;
 }
