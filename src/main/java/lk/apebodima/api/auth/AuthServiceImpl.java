@@ -1,13 +1,9 @@
-package lk.apebodima.api.service.impl;
+package lk.apebodima.api.auth;
 
-import lk.apebodima.api.dto.AuthResponse;
-import lk.apebodima.api.dto.LoginRequest;
-import lk.apebodima.api.dto.RegisterRequest;
-import lk.apebodima.api.dto.UserDto;
-import lk.apebodima.api.entity.User;
-import lk.apebodima.api.repository.UserRepository;
-import lk.apebodima.api.security.JwtService;
-import lk.apebodima.api.service.AuthService;
+import lk.apebodima.api.user.UserDto;
+import lk.apebodima.api.user.User;
+import lk.apebodima.api.user.UserRepository;
+import lk.apebodima.api.shared.security.JwtService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -32,7 +28,7 @@ public class AuthServiceImpl implements AuthService {
                 .firstName(request.getFirstName())
                 .lastName(request.getLastName())
                 .email(request.getEmail())
-                .password(passwordEncoder.encode(request.getPassword())) // 2. Hash the password
+                .password(passwordEncoder.encode(request.getPassword())) //Hash the password
                 .contactNo(request.getContactNo())
                 .address(request.getAddress())
                 .role(request.getRole())

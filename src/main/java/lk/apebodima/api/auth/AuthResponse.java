@@ -1,5 +1,6 @@
-package lk.apebodima.api.dto;
+package lk.apebodima.api.auth;
 
+import lk.apebodima.api.user.UserDto;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;

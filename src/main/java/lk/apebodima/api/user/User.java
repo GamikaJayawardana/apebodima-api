@@ -1,4 +1,4 @@
-package lk.apebodima.api.entity;
+package lk.apebodima.api.user;
 
 import java.util.Collection;
 import java.util.List;

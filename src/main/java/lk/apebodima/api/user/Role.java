@@ -1,4 +1,4 @@
-package lk.apebodima.api.entity;
+package lk.apebodima.api.user;
 
     // User roles in the system
     public enum Role{

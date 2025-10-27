@@ -1,4 +1,4 @@
-package lk.apebodima.api.security;
+package lk.apebodima.api.shared.security;
 
 import java.security.Key;
 import java.util.Date;

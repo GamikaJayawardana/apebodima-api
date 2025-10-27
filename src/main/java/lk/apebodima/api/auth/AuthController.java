@@ -1,9 +1,5 @@
-package lk.apebodima.api.controller;
+package lk.apebodima.api.auth;
 
-import lk.apebodima.api.dto.AuthResponse;
-import lk.apebodima.api.dto.LoginRequest;
-import lk.apebodima.api.dto.RegisterRequest;
-import lk.apebodima.api.service.AuthService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -18,13 +14,13 @@ public class AuthController {
 
     private final AuthService authService; // Inject the service interface
 
-
+    // Endpoint for user registration
     @PostMapping("/register")
     public ResponseEntity<AuthResponse> register(@RequestBody RegisterRequest request) {
         return ResponseEntity.ok(authService.register(request));
     }
 
-
+    // Endpoint for user login
     @PostMapping("/login")
     public ResponseEntity<AuthResponse> login(@RequestBody LoginRequest request) {
         return ResponseEntity.ok(authService.login(request));

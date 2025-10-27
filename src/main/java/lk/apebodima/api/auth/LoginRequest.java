@@ -1,4 +1,4 @@
-package lk.apebodima.api.dto;
+package lk.apebodima.api.auth;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

@@ -1,11 +1,9 @@
-package lk.apebodima.api.repository;
+package lk.apebodima.api.user;
 
 import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
-
-import lk.apebodima.api.entity.User;
 
 @Repository
 public interface UserRepository extends JpaRepository<User, Long> {

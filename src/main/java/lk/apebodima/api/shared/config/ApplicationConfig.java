@@ -1,6 +1,6 @@
-package lk.apebodima.api.config;
+package lk.apebodima.api.shared.config;
 
-import lk.apebodima.api.repository.UserRepository;
+import lk.apebodima.api.user.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
