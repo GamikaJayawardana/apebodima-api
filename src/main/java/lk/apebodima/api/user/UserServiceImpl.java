@@ -1,8 +1,9 @@
 package lk.apebodima.api.user;
 
+import lk.apebodima.api.shared.exception.ResourceNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -10,36 +11,46 @@ import org.springframework.stereotype.Service;
 public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
+    private final UserMapper userMapper;
 
     @Override
     public UserDto upgradeTenantToLandlord() {
-        // 1. Get the email of the currently logged-in user
         String userEmail = SecurityContextHolder.getContext().getAuthentication().getName();
-
-        // 2. Find the user in the database
         User userToUpdate = userRepository.findByEmail(userEmail)
-                .orElseThrow(() -> new UsernameNotFoundException("User not found with email: " + userEmail));
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with email: " + userEmail));
 
-        // 3. Update the user's role
         userToUpdate.setRole(Role.LANDLORD);
-
-        // 4. Save the change back to the database
         User savedUser = userRepository.save(userToUpdate);
-
-        // 5. Return the updated user information
-        return mapToUserDto(savedUser);
+        return userMapper.toDto(savedUser);
     }
 
-    // Helper method to convert a User entity to a UserDto
-    private UserDto mapToUserDto(User user) {
-        return UserDto.builder()
-                .id(user.getId())
-                .firstName(user.getFirstName())
-                .lastName(user.getLastName())
-                .email(user.getEmail())
-                .contactNo(user.getContactNo())
-                .address(user.getAddress())
-                .role(user.getRole())
-                .build();
+    @Override
+    public void changePassword(ChangePasswordRequest request) {
+        String userEmail = SecurityContextHolder.getContext().getAuthentication().getName();
+        User user = userRepository.findByEmail(userEmail)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+
+        if (!passwordEncoder.matches(request.getCurrentPassword(), user.getPassword())) {
+            throw new IllegalArgumentException("Incorrect current password");
+        }
+
+        user.setPassword(passwordEncoder.encode(request.getNewPassword()));
+        userRepository.save(user);
+    }
+
+    @Override
+    public UserDto updateMyProfile(UpdateUserRequest request) {
+        String userEmail = SecurityContextHolder.getContext().getAuthentication().getName();
+        User user = userRepository.findByEmail(userEmail)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+
+        user.setFirstName(request.getFirstName());
+        user.setLastName(request.getLastName());
+        user.setContactNo(request.getContactNo());
+        user.setAddress(request.getAddress());
+
+        User updatedUser = userRepository.save(user);
+        return userMapper.toDto(updatedUser);
     }
 }

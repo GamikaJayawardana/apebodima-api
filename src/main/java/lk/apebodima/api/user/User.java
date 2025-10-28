@@ -33,6 +33,9 @@ public class User implements UserDetails {
     private Role role;
 
     @Builder.Default
+    private boolean enabled = true;
+
+    @Builder.Default
     private Set<String> favoriteListingIds = new HashSet<>();
 
     @Override
@@ -53,5 +56,7 @@ public class User implements UserDetails {
     @Override
     public boolean isCredentialsNonExpired() { return true; }
     @Override
-    public boolean isEnabled() { return true; }
+    public boolean isEnabled() {
+        return this.enabled;
+    }
 }

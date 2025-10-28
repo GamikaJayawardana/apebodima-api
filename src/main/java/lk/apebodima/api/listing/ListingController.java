@@ -13,6 +13,10 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import org.springframework.data.geo.Distance;
+import org.springframework.data.geo.Metrics;
+import org.springframework.data.geo.Point;
+
 import java.math.BigDecimal;
 import java.util.List;
 
@@ -39,6 +43,9 @@ public class ListingController {
             @RequestParam(required = false) BigDecimal minRent,
             @RequestParam(required = false) BigDecimal maxRent,
             @RequestParam(required = false) Integer minBedrooms,
+            @RequestParam(required = false) Double longitude,
+            @RequestParam(required = false) Double latitude,
+            @RequestParam(required = false) Double distanceKm,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
             @RequestParam(defaultValue = "createdAt,desc") String[] sort) {
@@ -48,8 +55,21 @@ public class ListingController {
         Sort.Direction direction = sortDirection.equalsIgnoreCase("desc") ? Sort.Direction.DESC : Sort.Direction.ASC;
         Pageable pageable = PageRequest.of(page, size, Sort.by(direction, sortField));
 
-        Page<ListingDto> listingPage = listingService.searchListings(
-                city, propertyType, minRent, maxRent, minBedrooms, pageable);
+        Page<ListingDto> listingPage;
+
+        if (longitude != null && latitude != null && distanceKm != null) {
+            // If location data is provided, perform a geospatial search
+            Point point = new Point(longitude, latitude);
+            Distance distance = new Distance(distanceKm, Metrics.KILOMETERS);
+            listingPage = listingService.searchByLocation(point, distance, pageable);
+        } else {
+            // Otherwise, perform the regular criteria-based search
+            listingPage = listingService.searchListings(
+                    city, propertyType, minRent, maxRent, minBedrooms, pageable);
+        }
+
+
+
         return ResponseEntity.ok(listingPage);
     }
 

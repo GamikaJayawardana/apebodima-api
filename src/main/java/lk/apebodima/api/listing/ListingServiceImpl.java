@@ -1,4 +1,3 @@
-// In: src/main/java/lk/apebodima/api/listing/ListingServiceImpl.java
 package lk.apebodima.api.listing;
 
 import lk.apebodima.api.shared.exception.ResourceNotFoundException;
@@ -6,6 +5,8 @@ import lk.apebodima.api.user.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.geo.Distance;
+import org.springframework.data.geo.Point;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -135,5 +136,12 @@ public class ListingServiceImpl implements ListingService {
         listing.setBoosted(true);
         Listing savedListing = listingRepository.save(listing);
         return listingMapper.toDto(savedListing);
+    }
+
+
+    @Override
+    public Page<ListingDto> searchByLocation(Point point, Distance distance, Pageable pageable) {
+        Page<Listing> listingPage = listingRepository.findByLocationNear(point, distance, pageable);
+        return listingPage.map(listingMapper::toDto);
     }
 }

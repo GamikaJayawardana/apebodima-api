@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.mongodb.core.geo.GeoJsonPoint;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.math.BigDecimal;
@@ -52,6 +53,8 @@ public class Listing {
 
     // --- Relationships ---
     private String landlordId; // Store the ID of the landlord user
+
+    private GeoJsonPoint location;
 
     // --- Timestamps ---
     @CreatedDate
