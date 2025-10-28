@@ -51,6 +51,12 @@ public class Listing {
     @Builder.Default
     private boolean isBoosted = false;
 
+    @Builder.Default
+    private long viewCount = 0;
+
+    @Builder.Default
+    private long favoriteCount = 0;
+
     // --- Relationships ---
     private String landlordId; // Store the ID of the landlord user
 

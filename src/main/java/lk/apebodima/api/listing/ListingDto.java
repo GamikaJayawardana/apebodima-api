@@ -30,6 +30,8 @@ public class ListingDto {
     private String city;
     private Integer bedrooms;
     private Integer bathrooms;
+    private long viewCount;
+    private long favoriteCount;
     private Double sizeSqFt;
     private List<String> amenities;
     private ListingStatus status;

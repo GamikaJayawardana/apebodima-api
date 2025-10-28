@@ -26,17 +26,27 @@ public class FavoriteServiceImpl implements FavoriteService {
     @Override
     public void addFavorite(String listingId) {
         User currentUser = getCurrentUser();
-        listingRepository.findById(listingId)
+        Listing listing = listingRepository.findById(listingId)
                 .orElseThrow(() -> new ResourceNotFoundException("Listing not found with id: " + listingId));
-        currentUser.getFavoriteListingIds().add(listingId);
-        userRepository.save(currentUser);
+
+        if (currentUser.getFavoriteListingIds().add(listingId)) {
+            listing.setFavoriteCount(listing.getFavoriteCount() + 1);
+            listingRepository.save(listing);
+            userRepository.save(currentUser);
+        }
     }
 
     @Override
     public void removeFavorite(String listingId) {
         User currentUser = getCurrentUser();
-        currentUser.getFavoriteListingIds().remove(listingId);
-        userRepository.save(currentUser);
+        Listing listing = listingRepository.findById(listingId)
+                .orElseThrow(() -> new ResourceNotFoundException("Listing not found with id: " + listingId));
+
+        if (currentUser.getFavoriteListingIds().remove(listingId)) {
+            listing.setFavoriteCount(listing.getFavoriteCount() - 1);
+            listingRepository.save(listing);
+            userRepository.save(currentUser);
+        }
     }
 
     @Override

@@ -29,6 +29,8 @@ public class ListingMapper {
                 .isBoosted(listing.isBoosted())
                 .landlordId(listing.getLandlordId())
                 .createdAt(listing.getCreatedAt())
+                .viewCount(listing.getViewCount())
+                .favoriteCount(listing.getFavoriteCount())
                 .build();
     }
 }

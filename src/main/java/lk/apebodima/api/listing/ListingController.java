@@ -18,6 +18,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/v1/listings")
@@ -57,12 +58,10 @@ public class ListingController {
         Page<ListingDto> listingPage;
 
         if (longitude != null && latitude != null && distanceKm != null) {
-            // If location data is provided, perform a geospatial search
             GeoJsonPoint point = new GeoJsonPoint(longitude, latitude);
             Distance distance = new Distance(distanceKm, Metrics.KILOMETERS);
             listingPage = listingService.searchByLocation(point, distance, pageable);
         } else {
-            // Otherwise, perform the regular criteria-based search
             listingPage = listingService.searchListings(
                     city, propertyType, minRent, maxRent, minBedrooms, pageable);
         }
@@ -96,7 +95,9 @@ public class ListingController {
 
     @PostMapping("/{id}/boost")
     @PreAuthorize("hasAuthority('LANDLORD')")
-    public ResponseEntity<ListingDto> boostListing(@PathVariable String id) {
-        return ResponseEntity.ok(listingService.boostListing(id));
+    public ResponseEntity<Map<String, Object>> boostListing(@PathVariable String id, @RequestBody BoostRequestDto boostRequest) {
+        // This now correctly calls the service method and returns the right type.
+        Map<String, Object> paymentDetails = listingService.boostListing(id, boostRequest);
+        return ResponseEntity.ok(paymentDetails);
     }
 }

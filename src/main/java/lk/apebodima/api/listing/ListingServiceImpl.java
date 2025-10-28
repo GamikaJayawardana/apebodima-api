@@ -1,5 +1,6 @@
 package lk.apebodima.api.listing;
 
+import lk.apebodima.api.payment.*;
 import lk.apebodima.api.shared.exception.ResourceNotFoundException;
 import lk.apebodima.api.user.User;
 import lk.apebodima.api.user.UserRepository;
@@ -17,6 +18,8 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
@@ -27,7 +30,8 @@ public class ListingServiceImpl implements ListingService {
     private final ImageUploadService imageUploadService;
     private final ListingMapper listingMapper;
     private final UserRepository userRepository;
-
+    private final PaymentRepository paymentRepository;
+    private final DialogGenieService dialogGenieService;
 
     private User getCurrentUser() {
         String userEmail = SecurityContextHolder.getContext().getAuthentication().getName();
@@ -72,9 +76,13 @@ public class ListingServiceImpl implements ListingService {
 
     @Override
     public ListingDto getListingById(String id) {
-        return listingRepository.findById(id)
-                .map(listingMapper::toDto)
+        Listing listing = listingRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Listing not found with id: " + id));
+
+        listing.setViewCount(listing.getViewCount() + 1);
+        listingRepository.save(listing);
+
+        return listingMapper.toDto(listing);
     }
 
     @Override
@@ -134,7 +142,7 @@ public class ListingServiceImpl implements ListingService {
     }
 
     @Override
-    public ListingDto boostListing(String id) {
+    public Map<String, Object> boostListing(String id, BoostRequestDto boostRequest) {
         User currentUser = getCurrentUser();
         Listing listing = listingRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Listing not found with id: " + id));
@@ -142,11 +150,27 @@ public class ListingServiceImpl implements ListingService {
         if (!listing.getLandlordId().equals(currentUser.getId())) {
             throw new AccessDeniedException("You do not have permission to boost this listing.");
         }
-        listing.setBoosted(true);
-        Listing savedListing = listingRepository.save(listing);
-        return listingMapper.toDto(savedListing);
-    }
 
+        String orderId = UUID.randomUUID().toString();
+
+        Payment payment = Payment.builder()
+                .orderId(orderId)
+                .listingId(listing.getId())
+                .userId(currentUser.getId())
+                .amount(boostRequest.getAmount())
+                .currency(boostRequest.getCurrency())
+                .status(PaymentStatus.PENDING)
+                .build();
+        paymentRepository.save(payment);
+
+        PaymentRequestDto paymentRequest = new PaymentRequestDto();
+        paymentRequest.setOrderId(orderId);
+        paymentRequest.setAmount(boostRequest.getAmount());
+        paymentRequest.setCurrency(boostRequest.getCurrency());
+        paymentRequest.setItems("Boosting Listing: " + listing.getTitle());
+
+        return dialogGenieService.initiatePayment(paymentRequest);
+    }
 
     @Override
     public Page<ListingDto> searchByLocation(GeoJsonPoint point, Distance distance, Pageable pageable) {
