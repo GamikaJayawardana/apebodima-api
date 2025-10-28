@@ -6,16 +6,15 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.geo.Distance;
+import org.springframework.data.geo.Metrics;
+import org.springframework.data.mongodb.core.geo.GeoJsonPoint;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-
-import org.springframework.data.geo.Distance;
-import org.springframework.data.geo.Metrics;
-import org.springframework.data.geo.Point;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -59,7 +58,7 @@ public class ListingController {
 
         if (longitude != null && latitude != null && distanceKm != null) {
             // If location data is provided, perform a geospatial search
-            Point point = new Point(longitude, latitude);
+            GeoJsonPoint point = new GeoJsonPoint(longitude, latitude);
             Distance distance = new Distance(distanceKm, Metrics.KILOMETERS);
             listingPage = listingService.searchByLocation(point, distance, pageable);
         } else {
@@ -67,8 +66,6 @@ public class ListingController {
             listingPage = listingService.searchListings(
                     city, propertyType, minRent, maxRent, minBedrooms, pageable);
         }
-
-
 
         return ResponseEntity.ok(listingPage);
     }

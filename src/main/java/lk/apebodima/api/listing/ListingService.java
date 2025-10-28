@@ -4,7 +4,8 @@ package lk.apebodima.api.listing;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.geo.Distance;
-import org.springframework.data.geo.Point;
+import com.mongodb.client.model.geojson.Point;
+import org.springframework.data.mongodb.core.geo.GeoJsonPoint;
 import org.springframework.web.multipart.MultipartFile;
 import java.math.BigDecimal;
 import java.util.List;
@@ -26,6 +27,5 @@ public interface ListingService {
 
     ListingDto boostListing(String id);
 
-    Page<ListingDto> searchByLocation(Point point, Distance distance, Pageable pageable);
-
+    Page<ListingDto> searchByLocation(GeoJsonPoint point, Distance distance, Pageable pageable);
 }

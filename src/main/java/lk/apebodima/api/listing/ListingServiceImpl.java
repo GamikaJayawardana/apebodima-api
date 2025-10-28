@@ -2,11 +2,12 @@ package lk.apebodima.api.listing;
 
 import lk.apebodima.api.shared.exception.ResourceNotFoundException;
 import lk.apebodima.api.user.User;
+import lk.apebodima.api.user.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.geo.Distance;
-import org.springframework.data.geo.Point;
+import org.springframework.data.mongodb.core.geo.GeoJsonPoint;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -25,10 +26,18 @@ public class ListingServiceImpl implements ListingService {
     private final ListingRepository listingRepository;
     private final ImageUploadService imageUploadService;
     private final ListingMapper listingMapper;
+    private final UserRepository userRepository;
+
+
+    private User getCurrentUser() {
+        String userEmail = SecurityContextHolder.getContext().getAuthentication().getName();
+        return userRepository.findByEmail(userEmail)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with email: " + userEmail));
+    }
 
     @Override
     public ListingDto createListing(CreateListingRequest request, List<MultipartFile> images) {
-        User currentUser = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        User currentUser = getCurrentUser();
         List<String> imageUrls = new ArrayList<>();
         if (images != null && !images.isEmpty()) {
             for (MultipartFile image : images) {
@@ -70,7 +79,7 @@ public class ListingServiceImpl implements ListingService {
 
     @Override
     public ListingDto updateListing(String id, UpdateListingRequest request) {
-        User currentUser = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        User currentUser = getCurrentUser();
         Listing listing = listingRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Listing not found with id: " + id));
 
@@ -98,7 +107,7 @@ public class ListingServiceImpl implements ListingService {
 
     @Override
     public void deleteListing(String id) {
-        User currentUser = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        User currentUser = getCurrentUser();
         Listing listing = listingRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Listing not found with id: " + id));
 
@@ -117,7 +126,7 @@ public class ListingServiceImpl implements ListingService {
 
     @Override
     public List<ListingDto> getMyListings() {
-        User currentUser = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        User currentUser = getCurrentUser();
         return listingRepository.findByLandlordId(currentUser.getId())
                 .stream()
                 .map(listingMapper::toDto)
@@ -126,7 +135,7 @@ public class ListingServiceImpl implements ListingService {
 
     @Override
     public ListingDto boostListing(String id) {
-        User currentUser = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        User currentUser = getCurrentUser();
         Listing listing = listingRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Listing not found with id: " + id));
 
@@ -140,7 +149,7 @@ public class ListingServiceImpl implements ListingService {
 
 
     @Override
-    public Page<ListingDto> searchByLocation(Point point, Distance distance, Pageable pageable) {
+    public Page<ListingDto> searchByLocation(GeoJsonPoint point, Distance distance, Pageable pageable) {
         Page<Listing> listingPage = listingRepository.findByLocationNear(point, distance, pageable);
         return listingPage.map(listingMapper::toDto);
     }
